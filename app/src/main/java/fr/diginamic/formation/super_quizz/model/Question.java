@@ -1,4 +1,4 @@
-package fr.diginamic.formation.super_quizz;
+package fr.diginamic.formation.super_quizz.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

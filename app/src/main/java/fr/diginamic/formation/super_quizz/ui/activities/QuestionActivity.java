@@ -1,12 +1,14 @@
-package fr.diginamic.formation.super_quizz;
+package fr.diginamic.formation.super_quizz.ui.activities;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import fr.diginamic.formation.super_quizz.R;
+import fr.diginamic.formation.super_quizz.model.Question;
 
 public class QuestionActivity extends AppCompatActivity {
 
