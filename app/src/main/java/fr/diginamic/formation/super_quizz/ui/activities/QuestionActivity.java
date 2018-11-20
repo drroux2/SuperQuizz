@@ -1,5 +1,4 @@
 package fr.diginamic.formation.super_quizz.ui.activities;
-
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,8 +11,7 @@ import fr.diginamic.formation.super_quizz.model.Question;
 
 public class QuestionActivity extends AppCompatActivity {
 
-    private TextView textViewQuestion;
-    private Button buttonRep1, buttonRep2, buttonRep3, buttonRep4;
+
     private Question question;
 
     @Override
@@ -22,6 +20,8 @@ public class QuestionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_question);
         question = getIntent().getParcelableExtra("question");
 
+        TextView textViewQuestion;
+        Button buttonRep1, buttonRep2, buttonRep3, buttonRep4;
         textViewQuestion = findViewById(R.id.textview_question);
         buttonRep1 = findViewById(R.id.button_rep_1);
         buttonRep2 = findViewById(R.id.button_rep_2);
@@ -50,6 +50,7 @@ public class QuestionActivity extends AppCompatActivity {
 
         startActivityForResult(i,1);
         finish();
+
 
     }
 }

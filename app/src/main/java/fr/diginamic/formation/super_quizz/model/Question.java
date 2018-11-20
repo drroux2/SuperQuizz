@@ -12,27 +12,15 @@ public class Question implements Parcelable {
 	private String bonneReponse;
 	private TypeQuestion type;
 	
-	
-	public Question() {
-		
-	}
-	
+
 	public Question(String intitule, List<String> propositions, String bonneReponse) {
 		super();
 		this.intitule = intitule;
 		this.propositions = propositions;
 		this.bonneReponse = bonneReponse;
 	}
-	
-	public Question(String intitule, List<String> propositions, String bonneReponse, TypeQuestion type) {
-		super();
-		this.intitule = intitule;
-		this.propositions = propositions;
-		this.bonneReponse = bonneReponse;
-		this.type = type;
-	}
 
-	protected Question(Parcel in) {
+	private Question(Parcel in) {
 		intitule = in.readString();
 		propositions = in.createStringArrayList();
 		bonneReponse = in.readString();

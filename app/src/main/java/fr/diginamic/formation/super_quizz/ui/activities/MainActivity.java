@@ -2,10 +2,10 @@ package fr.diginamic.formation.super_quizz.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
-import android.text.Layout;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,20 +15,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import fr.diginamic.formation.super_quizz.R;
 import fr.diginamic.formation.super_quizz.model.Question;
-import fr.diginamic.formation.super_quizz.model.TypeQuestion;
 import fr.diginamic.formation.super_quizz.ui.fragments.PlayFragment;
+import fr.diginamic.formation.super_quizz.ui.fragments.QuestionListFragment;
 import fr.diginamic.formation.super_quizz.ui.fragments.ScoreFragment;
 import fr.diginamic.formation.super_quizz.ui.fragments.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, QuestionListFragment.OnListFragmentInteractionListener {
 
 
     @Override
@@ -60,10 +55,14 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
     if(savedInstanceState == null) {
-            PlayFragment playFragment = new PlayFragment();
+            /*PlayFragment playFragment = new PlayFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container_main, playFragment);
-            transaction.commit();
+            transaction.commit();*/
+        QuestionListFragment questionListFragment = new QuestionListFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container_main, questionListFragment);
+        transaction.commit();
         }
 
     }
@@ -102,40 +101,56 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-
-            ScoreFragment scoreFragment = new ScoreFragment();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container_main, scoreFragment);
-            transaction.commit();
+            initScoreFragment();
 
         } else if (id == R.id.nav_gallery) {
             Intent intent = new Intent(this, InformationActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_slideshow) {
-            PlayFragment playFragment = new PlayFragment();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container_main, playFragment);
-            transaction.commit();
-
+            initPlayFragment();
         } else if (id == R.id.nav_manage) {
-            SettingsFragment settingsFragment = new SettingsFragment();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container_main, settingsFragment);
-            transaction.commit();
+            initSettingsFragment();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    @Override
+    public void onListFragmentInteraction(Question item) {
+        Intent i = new Intent(this, QuestionActivity.class);
+        i.putExtra("question", item);
+        startActivity(i);
+    }
+
+    private void initSettingsFragment(){
+        SettingsFragment settingsFragment = new SettingsFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container_main, settingsFragment);
+        transaction.commit();
+    }
+
+    private void initPlayFragment(){
+        PlayFragment playFragment = new PlayFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container_main, playFragment);
+        transaction.commit();
+    }
+
+    private void initScoreFragment(){
+        ScoreFragment scoreFragment = new ScoreFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container_main, scoreFragment);
+        transaction.commit();
+    }
 }

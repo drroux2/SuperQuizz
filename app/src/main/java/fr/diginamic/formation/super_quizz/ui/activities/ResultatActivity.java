@@ -11,11 +11,12 @@ import fr.diginamic.formation.super_quizz.R;
 public class ResultatActivity extends AppCompatActivity {
 
 
-    private ImageButton imageButtonResult;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_resultat);
+        ImageButton imageButtonResult;
         imageButtonResult = findViewById(R.id.imagebutton_resultat);
         String resultat = getIntent().getStringExtra("succes");
         if (resultat.equals("1")) {
