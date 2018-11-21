@@ -3,6 +3,8 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -28,13 +30,18 @@ public class QuestionActivity extends AppCompatActivity {
         buttonRep3 = findViewById(R.id.button_rep_3);
         buttonRep4 = findViewById(R.id.button_rep_4);
 
-        textViewQuestion.setText(question.getIntitule());
+        textViewQuestion.setText(question.getNameQuestion());
 
-        buttonRep1.setText(question.getPropositions().get(0));
-        buttonRep2.setText(question.getPropositions().get(1));
-        buttonRep3.setText(question.getPropositions().get(2));
-        buttonRep4.setText(question.getPropositions().get(3));
+        buttonRep1.setText(question.getAnswers().get(0));
+        buttonRep2.setText(question.getAnswers().get(1));
+        buttonRep3.setText(question.getAnswers().get(2));
+        buttonRep4.setText(question.getAnswers().get(3));
 
+        Animation rotate = AnimationUtils.loadAnimation(this, R.anim.rotate);
+        buttonRep1.startAnimation(rotate);
+        buttonRep2.startAnimation(rotate);
+        buttonRep3.startAnimation(rotate);
+        buttonRep4.startAnimation(rotate);
     }
 
     public void openResultat(View view) {
@@ -42,13 +49,12 @@ public class QuestionActivity extends AppCompatActivity {
         String buttonText = buttonTap.getText().toString();
 
         Intent i = new Intent(this, ResultatActivity.class);
-        if(buttonText.equals(question.getBonneReponse())){
+        if(buttonText.equals(question.getGoodAnswer())){
             i.putExtra("succes", "1");
         }else{
             i.putExtra("succes", "0");
         }
-
-        startActivityForResult(i,1);
+        startActivity(i);
         finish();
 
 

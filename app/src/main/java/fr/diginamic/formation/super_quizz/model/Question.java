@@ -7,23 +7,23 @@ import java.util.List;
 
 public class Question implements Parcelable {
 	
-	private String intitule;
-	private List<String> propositions;
-	private String bonneReponse;
+	private String nameQuestion;
+	private List<String> answers;
+	private String goodAnswer;
 	private TypeQuestion type;
 	
 
-	public Question(String intitule, List<String> propositions, String bonneReponse) {
+	public Question(String nameQuestion, List<String> answers, String goodAnswer) {
 		super();
-		this.intitule = intitule;
-		this.propositions = propositions;
-		this.bonneReponse = bonneReponse;
+		this.nameQuestion = nameQuestion;
+		this.answers = answers;
+		this.goodAnswer = goodAnswer;
 	}
 
 	private Question(Parcel in) {
-		intitule = in.readString();
-		propositions = in.createStringArrayList();
-		bonneReponse = in.readString();
+		nameQuestion = in.readString();
+        answers = in.createStringArrayList();
+        goodAnswer = in.readString();
 	}
 
 	public static final Creator<Question> CREATOR = new Creator<Question>() {
@@ -38,28 +38,28 @@ public class Question implements Parcelable {
 		}
 	};
 
-	public String getIntitule() {
-		return intitule;
+	public String getNameQuestion() {
+		return nameQuestion;
 	}
 
-	public void setIntitule(String intitule) {
-		this.intitule = intitule;
+	public void setNameQuestion(String nameQuestion) {
+		this.nameQuestion = nameQuestion;
 	}
 
-	public List<String> getPropositions() {
-		return propositions;
+	public List<String> getAnswers() {
+		return answers;
 	}
 
-	public void setPropositions(List<String> propositions) {
-		this.propositions = propositions;
+	public void setAnswers(List<String> propositions) {
+		this.answers = propositions;
 	}
 
-	public String getBonneReponse() {
-		return bonneReponse;
+	public String getGoodAnswer() {
+		return goodAnswer;
 	}
 
-	public void setBonneReponse(String bonneReponse) {
-		this.bonneReponse = bonneReponse;
+	public void setGoodAnswer(String goodAnswer) {
+		this.goodAnswer = goodAnswer;
 	}
 	
 	public TypeQuestion getType() {
@@ -70,16 +70,9 @@ public class Question implements Parcelable {
 		this.type = type;
 	}
 
-	public boolean verifierReponse(String reponse) {
-		boolean reponseOK = false;
-		if(reponse.equals(this.bonneReponse)) {
-			reponseOK = true;
-		}
-		return reponseOK;
-	}
 	
-	public void addProposition(String proposition) {
-		this.propositions.add(proposition);
+	public void addAnswer(String answer) {
+		this.answers.add(answer);
 	}
 
 	@Override
@@ -89,8 +82,8 @@ public class Question implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-	dest.writeString(this.intitule);
-	dest.writeStringList(this.propositions);
-	dest.writeString(this.bonneReponse);
+	dest.writeString(this.nameQuestion);
+	dest.writeStringList(this.answers);
+	dest.writeString(this.goodAnswer);
 	}
 }

@@ -26,8 +26,7 @@ import java.util.List;
  */
 public class QuestionListFragment extends Fragment {
 
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    private int mColumnCount = 1;
+
     private OnListFragmentInteractionListener mListener;
 
     /**
@@ -37,22 +36,11 @@ public class QuestionListFragment extends Fragment {
     public QuestionListFragment() {
     }
 
-    @SuppressWarnings("unused")
-    public static QuestionListFragment newInstance(int columnCount) {
-        QuestionListFragment fragment = new QuestionListFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
     }
 
     @Override
@@ -70,16 +58,12 @@ public class QuestionListFragment extends Fragment {
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
             recyclerView.setAdapter(new QuestionRecyclerViewAdapter(lq, mListener));
         }
         return view;
     }
-
 
     @Override
     public void onAttach(Context context) {

@@ -19,7 +19,6 @@ import fr.diginamic.formation.super_quizz.R;
  * create an instance of this fragment.
  */
 public class PlayFragment extends Fragment {
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
 
     public PlayFragment() {

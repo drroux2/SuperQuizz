@@ -5,6 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import fr.diginamic.formation.super_quizz.R;
@@ -39,9 +41,7 @@ public class QuestionRecyclerViewAdapter extends RecyclerView.Adapter<QuestionRe
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         holder.mItem = mQuestions.get(position);
-        holder.mIdView.setText(mQuestions.get(position).getIntitule());
-        //holder.mContentView.setText(mQuestions.get(position).content);
-
+        holder.mIdView.setText(mQuestions.get(position).getNameQuestion());
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,20 +62,18 @@ public class QuestionRecyclerViewAdapter extends RecyclerView.Adapter<QuestionRe
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final View mView;
         private final TextView mIdView;
-        private final TextView mContentView;
         private Question mItem;
 
          ViewHolder(View view) {
             super(view);
             mView = view;
             mIdView = view.findViewById(R.id.item_number);
-            mContentView = view.findViewById(R.id.content);
         }
 
         @NonNull
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString();
         }
     }
 }

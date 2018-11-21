@@ -10,16 +10,14 @@ import fr.diginamic.formation.super_quizz.R;
 
 public class ResultatActivity extends AppCompatActivity {
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_resultat);
         ImageButton imageButtonResult;
         imageButtonResult = findViewById(R.id.imagebutton_resultat);
-        String resultat = getIntent().getStringExtra("succes");
-        if (resultat.equals("1")) {
+        String result = getIntent().getStringExtra("succes");
+        if (result.equals("1")) {
             imageButtonResult.setImageResource(R.drawable.ic_validation);
         } else{
             imageButtonResult.setImageResource(R.drawable.ic_croix);
