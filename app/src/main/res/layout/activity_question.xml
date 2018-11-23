@@ -50,5 +50,12 @@
         android:onClick="openResultat"
         android:backgroundTint="@color/colorBlack"
         android:textColor="@color/colorWhite"/>
+    <ProgressBar
+        android:id="@+id/progressBar_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:max="60" />
 
 </LinearLayout>

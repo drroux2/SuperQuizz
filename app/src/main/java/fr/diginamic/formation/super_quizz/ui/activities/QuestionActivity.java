@@ -1,27 +1,33 @@
 package fr.diginamic.formation.super_quizz.ui.activities;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import fr.diginamic.formation.super_quizz.R;
+import fr.diginamic.formation.super_quizz.database.QuestionDatabaseHelper;
 import fr.diginamic.formation.super_quizz.model.Question;
+import fr.diginamic.formation.super_quizz.ui.threads.DelayTask;
 
-public class QuestionActivity extends AppCompatActivity {
+public class QuestionActivity extends AppCompatActivity implements DelayTask.OnDelayTaskListener {
 
 
     private Question question;
+    private ProgressBar pb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question);
         question = getIntent().getParcelableExtra("question");
-
+        DelayTask delayTask = new DelayTask(QuestionActivity.this);
         TextView textViewQuestion;
         Button buttonRep1, buttonRep2, buttonRep3, buttonRep4;
         textViewQuestion = findViewById(R.id.textview_question);
@@ -42,12 +48,18 @@ public class QuestionActivity extends AppCompatActivity {
         buttonRep2.startAnimation(rotate);
         buttonRep3.startAnimation(rotate);
         buttonRep4.startAnimation(rotate);
+
+        pb = findViewById(R.id.progressBar_time);
+        delayTask.execute();
     }
+
 
     public void openResultat(View view) {
         Button buttonTap = (Button)view;
         String buttonText = buttonTap.getText().toString();
-
+        QuestionDatabaseHelper databaseHelper = QuestionDatabaseHelper.getInstance(this);
+        question.setUserAnswer(buttonText);
+        databaseHelper.updateQuestion(question);
         Intent i = new Intent(this, ResultatActivity.class);
         if(buttonText.equals(question.getGoodAnswer())){
             i.putExtra("succes", "1");
@@ -59,4 +71,15 @@ public class QuestionActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    public void willStart() {
+        pb.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onProgress(int progress) {
+        pb.setProgress(progress);
+    }
+
 }

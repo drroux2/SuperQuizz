@@ -10,8 +10,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import fr.diginamic.formation.super_quizz.R;
+import fr.diginamic.formation.super_quizz.database.QuestionDatabaseHelper;
 import fr.diginamic.formation.super_quizz.model.Question;
 
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ public class QuestionListFragment extends Fragment {
 
 
     private OnListFragmentInteractionListener mListener;
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -46,13 +49,10 @@ public class QuestionListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        List<Question> lq = new ArrayList<>();
-        lq.add(new Question("Quelle est la capitale de la France ?", Arrays.asList("Paris","Madrid","Berlin","Londres"),"Paris"));
-        lq.add(new Question("Quelle est la capitale de la chine ?", Arrays.asList("Pekin","Hong-Kong","Tokyo","Londres"),"Pekin"));
-        lq.add(new Question("Quelle est la capitale de l'Italie ?", Arrays.asList("Tokyo","Rome","Paris","Londres"),"Rome"));
-        lq.add(new Question("Quelle est la ville d'origine du créateur de ce quizz ?", Arrays.asList("Paris","Nantes","Poitiers","Perpignan"),"Poitiers"));
+        QuestionDatabaseHelper databaseHelper = QuestionDatabaseHelper.getInstance(getContext());
+        List<Question> lq = databaseHelper.getAllQuestions();
         View view = inflater.inflate(R.layout.fragment_question_list, container, false);
+
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -93,6 +93,8 @@ public class QuestionListFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnListFragmentInteractionListener {
-        void onListFragmentInteraction(Question item);
+        void startQuizzWithQuestion(Question item);
+
+        void editQuestion(Question item);
     }
 }

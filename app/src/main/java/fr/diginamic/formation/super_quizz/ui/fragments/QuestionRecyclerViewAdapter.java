@@ -5,8 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import fr.diginamic.formation.super_quizz.R;
@@ -41,17 +39,30 @@ public class QuestionRecyclerViewAdapter extends RecyclerView.Adapter<QuestionRe
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         holder.mItem = mQuestions.get(position);
-        holder.mIdView.setText(mQuestions.get(position).getNameQuestion());
+        holder.mIdView.setText(mQuestions.get(position).getIdQuestion() + " " + mQuestions.get(position).getNameQuestion()  );
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.startQuizzWithQuestion(holder.mItem);
                 }
             }
         });
+        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (null != mListener) {
+                    // Notify the active callbacks interface (the activity, if the
+                    // fragment is attached to one) that an item has been selected.
+                    mListener.editQuestion(holder.mItem);
+
+                }
+                return true;
+            }
+        });
+
     }
 
     @Override

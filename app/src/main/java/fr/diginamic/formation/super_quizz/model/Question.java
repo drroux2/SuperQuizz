@@ -3,15 +3,30 @@ package fr.diginamic.formation.super_quizz.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Question implements Parcelable {
-	
+
+	private int idQuestion;
+	private int idServerQuestion;
 	private String nameQuestion;
 	private List<String> answers;
 	private String goodAnswer;
-	private TypeQuestion type;
-	
+	private String userAnswer;
+
+
+	public Question(){
+
+	}
+
+	public Question(int idQuestion, String nameQuestion, List<String> answers, String goodAnswer) {
+		super();
+		this.idQuestion = idQuestion;
+		this.nameQuestion = nameQuestion;
+		this.answers = answers;
+		this.goodAnswer = goodAnswer;
+	}
 
 	public Question(String nameQuestion, List<String> answers, String goodAnswer) {
 		super();
@@ -21,6 +36,7 @@ public class Question implements Parcelable {
 	}
 
 	private Question(Parcel in) {
+		idQuestion = in.readInt();
 		nameQuestion = in.readString();
         answers = in.createStringArrayList();
         goodAnswer = in.readString();
@@ -37,6 +53,18 @@ public class Question implements Parcelable {
 			return new Question[size];
 		}
 	};
+
+	public int getIdQuestion(){ return idQuestion; }
+
+	public void setIdQuestion(int idQuestion){ this.idQuestion = idQuestion; }
+
+	public int getIdServerQuestion() {
+		return idServerQuestion;
+	}
+
+	public void setIdServerQuestion(int idServerQuestion) {
+		this.idServerQuestion = idServerQuestion;
+	}
 
 	public String getNameQuestion() {
 		return nameQuestion;
@@ -61,16 +89,15 @@ public class Question implements Parcelable {
 	public void setGoodAnswer(String goodAnswer) {
 		this.goodAnswer = goodAnswer;
 	}
-	
-	public TypeQuestion getType() {
-		return type;
+
+	public String getUserAnswer() {
+		return userAnswer;
 	}
 
-	public void setType(TypeQuestion type) {
-		this.type = type;
+	public void setUserAnswer(String userAnswer) {
+		this.userAnswer = userAnswer;
 	}
 
-	
 	public void addAnswer(String answer) {
 		this.answers.add(answer);
 	}
@@ -82,8 +109,9 @@ public class Question implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-	dest.writeString(this.nameQuestion);
-	dest.writeStringList(this.answers);
-	dest.writeString(this.goodAnswer);
+		dest.writeInt(this.idQuestion);
+		dest.writeString(this.nameQuestion);
+		dest.writeStringList(this.answers);
+		dest.writeString(this.goodAnswer);
 	}
 }
