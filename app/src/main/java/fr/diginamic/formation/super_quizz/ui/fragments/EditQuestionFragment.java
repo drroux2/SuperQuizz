@@ -3,6 +3,7 @@ package fr.diginamic.formation.super_quizz.ui.fragments;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,11 +11,17 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.diginamic.formation.super_quizz.R;
+import fr.diginamic.formation.super_quizz.api.APIClient;
+import fr.diginamic.formation.super_quizz.database.QuestionDatabaseHelper;
 import fr.diginamic.formation.super_quizz.model.Question;
+import fr.diginamic.formation.super_quizz.ui.activities.MainActivity;
 
 
 public class EditQuestionFragment extends Fragment {
@@ -160,7 +167,39 @@ public class EditQuestionFragment extends Fragment {
                         editQuestion.setGoodAnswer(goodAnswer);
                         mListener.updateQuestion(editQuestion);
                     }else {
-                        mListener.saveQuestion(question);
+                        try {
+                            APIClient.getInstance().addQuestion("POST",question, new APIClient.APIResult<Question>() {
+                                @Override
+                                public void onFailure(IOException e) {
+                                    Log.d("fail",e.getMessage());
+                                    mListener.returnToList();
+                                }
+
+                                @Override
+                                public void OnSuccess(Question object) throws IOException {
+                                    Log.d("success","success");
+                                    APIClient.getInstance().getQuestions(new APIClient.APIResult<List<Question>>() {
+                                        @Override
+                                        public void onFailure(IOException e) {
+                                            // TODO : Nothing
+                                        }
+
+                                        @Override
+                                        public void OnSuccess(List<Question> questions) throws IOException {
+                                            QuestionDatabaseHelper helper = QuestionDatabaseHelper.getInstance(getContext());
+                                            helper.synchroniseDatabaseQuestions(questions);
+                                            mListener.returnToList();
+                                        }
+                                    });
+
+                                }
+                            });
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            e.getMessage();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -182,6 +221,7 @@ public class EditQuestionFragment extends Fragment {
 
     public interface OnEditQuestionListener {
         void saveQuestion(Question q);
+        void returnToList();
         void updateQuestion(Question q);
     }
 

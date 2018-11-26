@@ -72,7 +72,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void OnSuccess(List<Question> questions) throws IOException {
                 QuestionDatabaseHelper helper = QuestionDatabaseHelper.getInstance(MainActivity.this);
-                helper.synchroniseDatabaseQuestions(questions); 
+                helper.synchroniseDatabaseQuestions(questions);
+                initListQuestion();
             }
         });
     }
@@ -190,6 +191,11 @@ public class MainActivity extends AppCompatActivity
     public void saveQuestion(Question q) {
         QuestionDatabaseHelper databaseHelper = QuestionDatabaseHelper.getInstance(this);
         databaseHelper.addQuestion(q);
+        initListQuestion();
+    }
+
+    @Override
+    public void returnToList() {
         initListQuestion();
     }
 

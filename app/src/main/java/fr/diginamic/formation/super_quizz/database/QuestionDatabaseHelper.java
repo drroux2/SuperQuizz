@@ -227,7 +227,7 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
             }
 
             if (found) {
-                updateQuestion(serverQuestion);
+                //updateQuestion(serverQuestion);
             } else {
                 addQuestion(serverQuestion);
             }
