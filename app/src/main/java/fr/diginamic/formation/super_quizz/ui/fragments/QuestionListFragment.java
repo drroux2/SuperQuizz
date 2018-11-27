@@ -1,7 +1,9 @@
 package fr.diginamic.formation.super_quizz.ui.fragments;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -11,11 +13,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+
+import com.squareup.picasso.Picasso;
 
 import fr.diginamic.formation.super_quizz.R;
+import fr.diginamic.formation.super_quizz.api.APIClient;
 import fr.diginamic.formation.super_quizz.database.QuestionDatabaseHelper;
 import fr.diginamic.formation.super_quizz.model.Question;
+import fr.diginamic.formation.super_quizz.ui.activities.MainActivity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +38,7 @@ public class QuestionListFragment extends Fragment {
 
 
     private OnListFragmentInteractionListener mListener;
-
+    private QuestionRecyclerViewAdapter adapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -53,16 +61,40 @@ public class QuestionListFragment extends Fragment {
         List<Question> lq = databaseHelper.getAllQuestions();
         View view = inflater.inflate(R.layout.fragment_question_list, container, false);
 
-
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-
-            recyclerView.setAdapter(new QuestionRecyclerViewAdapter(lq, mListener));
+            adapter = new QuestionRecyclerViewAdapter(lq, mListener);
+            recyclerView.setAdapter(adapter);
         }
+
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        APIClient.getInstance().getQuestions(new APIClient.APIResult<List<Question>>() {
+            @Override
+            public void onFailure(IOException e) {
+
+            }
+
+            @Override
+            public void OnSuccess(List<Question> questions) {
+                QuestionDatabaseHelper helper = QuestionDatabaseHelper.getInstance(getContext());
+                helper.synchroniseDatabaseQuestions(questions);
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.updateData(QuestionDatabaseHelper.getInstance(getContext()).getAllQuestions());
+                    }
+                });
+            }
+        });
     }
 
     @Override

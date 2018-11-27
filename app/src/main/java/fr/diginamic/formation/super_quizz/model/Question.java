@@ -3,7 +3,6 @@ package fr.diginamic.formation.super_quizz.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Question implements Parcelable {
@@ -14,25 +13,18 @@ public class Question implements Parcelable {
 	private List<String> answers;
 	private String goodAnswer;
 	private String userAnswer;
-
+	private String imageURL;
 
 	public Question(){
 
 	}
 
-	public Question(int idQuestion, String nameQuestion, List<String> answers, String goodAnswer) {
-		super();
-		this.idQuestion = idQuestion;
-		this.nameQuestion = nameQuestion;
-		this.answers = answers;
-		this.goodAnswer = goodAnswer;
-	}
-
-	public Question(String nameQuestion, List<String> answers, String goodAnswer) {
+	public Question(String nameQuestion, List<String> answers, String goodAnswer, String imageURL) {
 		super();
 		this.nameQuestion = nameQuestion;
 		this.answers = answers;
 		this.goodAnswer = goodAnswer;
+		this.imageURL = imageURL;
 	}
 
 	private Question(Parcel in) {
@@ -98,8 +90,12 @@ public class Question implements Parcelable {
 		this.userAnswer = userAnswer;
 	}
 
-	public void addAnswer(String answer) {
-		this.answers.add(answer);
+	public String getImageURL() {
+		return imageURL;
+	}
+
+	public void setImageURL(String imageURL) {
+		this.imageURL = imageURL;
 	}
 
 	@Override

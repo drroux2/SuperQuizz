@@ -23,6 +23,17 @@ public class APIClient {
     //http://192.168.10.38:3000/questions
     private final String URL_SERVER = "http://192.168.10.154:3000/questions";
 
+    private final String KEY_ID = "id";
+    private final String KEY_TITLE = "title";
+    private final String KEY_ANSWER_1 = "answer_1";
+    private final String KEY_ANSWER_2 = "answer_2";
+    private final String KEY_ANSWER_3 = "answer_3";
+    private final String KEY_ANSWER_4 = "answer_4";
+    private final String KEY_CORRECT_ANSWER = "correct_answer";
+    private final String KEY_AUTHOR = "author";
+    private final String KEY_URL = "author_img_url";
+    private final String KEY_URL_IMAGE ="https://avatars3.githubusercontent.com/u/14200799?s=400&v=4";
+
     private final OkHttpClient client = new OkHttpClient();
 
     private static APIClient sInstance = new APIClient();
@@ -45,39 +56,44 @@ public class APIClient {
             public void onResponse(Call call, Response response) throws IOException {
                 List<Question> questions = new ArrayList<>();
 
-                // TODO : Lire les questions depuis la reponse et les ajouter à la liste
                 try {
                     JSONArray jsonArray = new JSONArray(response.body().string());
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         Question question = new Question();
 
-                        question.setIdQuestion(jsonObject.getInt("id"));
-                        question.setNameQuestion(jsonObject.getString("title"));
+                        question.setIdQuestion(jsonObject.getInt(KEY_ID));
+                        question.setNameQuestion(jsonObject.getString(KEY_TITLE));
 
                         List<String> listAnswers = new ArrayList<>();
-                        listAnswers.add(jsonObject.getString("answer_1"));
-                        listAnswers.add(jsonObject.getString("answer_2"));
-                        listAnswers.add(jsonObject.getString("answer_3"));
-                        listAnswers.add(jsonObject.getString("answer_4"));
+                        listAnswers.add(jsonObject.getString(KEY_ANSWER_1));
+                        listAnswers.add(jsonObject.getString(KEY_ANSWER_2));
+                        listAnswers.add(jsonObject.getString(KEY_ANSWER_3));
+                        listAnswers.add(jsonObject.getString(KEY_ANSWER_4));
 
-                        switch(jsonObject.getInt("correct_answer")){
+                        switch(jsonObject.getInt(KEY_CORRECT_ANSWER)){
 
                             case 1:
-                                question.setGoodAnswer(jsonObject.getString("answer_1"));
+                                question.setGoodAnswer(jsonObject.getString(KEY_ANSWER_1));
                                 break;
                             case 2:
-                                question.setGoodAnswer(jsonObject.getString("answer_2"));
+                                question.setGoodAnswer(jsonObject.getString(KEY_ANSWER_2));
                                 break;
                             case 3:
-                                question.setGoodAnswer(jsonObject.getString("answer_3"));
+                                question.setGoodAnswer(jsonObject.getString(KEY_ANSWER_3));
                                 break;
                             case 4:
-                                question.setGoodAnswer(jsonObject.getString("answer_4"));
+                                question.setGoodAnswer(jsonObject.getString(KEY_ANSWER_4));
                                 break;
                         }
 
                         question.setAnswers(listAnswers);
+
+                        question.setImageURL(jsonObject.getString(KEY_URL));
+
+                        //set author apres avoir changé le model
+
+                        question.setUserAnswer(null);
                         questions.add(question);
                     }
                 } catch (JSONException e) {
@@ -89,61 +105,40 @@ public class APIClient {
 
     }
 
-    public void updateQuestion(Question question,final APIResult<Question> result){
+    public void updateQuestion(final Question question, final APIResult<Question> result) throws JSONException {
 
         final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-        JSONObject json = new JSONObject();
+        JSONObject json = createJsonObject(question);
 
         RequestBody body = RequestBody.create(JSON, json.toString());
 
-        Request request = new Request.Builder().url(URL_SERVER).put(body).build();
+        Request request = new Request.Builder().url(URL_SERVER+"/"+question.getIdQuestion()).put(body).build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
+                result.onFailure(e);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-
+                result.OnSuccess(question);
             }
         });
     }
 
 
-    public void addQuestion(String choice,final Question question, final APIResult<Question> result) throws IOException, JSONException {
-        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        JSONObject json = new JSONObject();
-        json.put("title",question.getNameQuestion());
-        json.put("answer_1",question.getAnswers().get(0));
-        json.put("answer_2",question.getAnswers().get(1));
-        json.put("answer_3",question.getAnswers().get(2));
-        json.put("answer_4",question.getAnswers().get(3));
-        if(question.getGoodAnswer().equals(question.getAnswers().get(0))){
-            json.put("correct_answer",1);
-        }
-        if(question.getGoodAnswer().equals(question.getAnswers().get(1))){
-            json.put("correct_answer",2);
-        }
-        if(question.getGoodAnswer().equals(question.getAnswers().get(2))){
-            json.put("correct_answer",3);
-        }
-        if(question.getGoodAnswer().equals(question.getAnswers().get(3))){
-            json.put("correct_answer",4);
-        }
+    public void addQuestion(final Question question, final APIResult<Question> result) throws JSONException {
 
-        json.put("author","mathis");
+        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+        JSONObject json = createJsonObject(question);
 
         RequestBody body = RequestBody.create(JSON, json.toString());
-        Request request = null;
-        if(choice.equals("POST")) {
-            request = new Request.Builder().url(URL_SERVER).post(body).build();
-        }
-        if(choice.equals("PUT")) {
-            request = new Request.Builder().url(URL_SERVER).put(body).build();
-        }
+
+        Request request = new Request.Builder().url(URL_SERVER).post(body).build();
+
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -159,7 +154,6 @@ public class APIClient {
 
     }
 
-
     public void deleteQuestion(){
 
     }
@@ -169,5 +163,30 @@ public class APIClient {
         void OnSuccess(T object) throws IOException;
     }
 
+    private JSONObject createJsonObject(Question question) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put(KEY_TITLE,question.getNameQuestion());
+        json.put(KEY_ANSWER_1,question.getAnswers().get(0));
+        json.put(KEY_ANSWER_2,question.getAnswers().get(1));
+        json.put(KEY_ANSWER_3,question.getAnswers().get(2));
+        json.put(KEY_ANSWER_4,question.getAnswers().get(3));
+        if(question.getGoodAnswer().equals(question.getAnswers().get(0))){
+            json.put(KEY_CORRECT_ANSWER,1);
+        }
+        if(question.getGoodAnswer().equals(question.getAnswers().get(1))){
+            json.put(KEY_CORRECT_ANSWER,2);
+        }
+        if(question.getGoodAnswer().equals(question.getAnswers().get(2))){
+            json.put(KEY_CORRECT_ANSWER,3);
+        }
+        if(question.getGoodAnswer().equals(question.getAnswers().get(3))){
+            json.put(KEY_CORRECT_ANSWER,4);
+        }
+
+        //json.put(KEY_AUTHOR,"mathis");
+        json.put(KEY_URL, KEY_URL_IMAGE);
+
+        return json;
+    }
 
 }

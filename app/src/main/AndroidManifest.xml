@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="fr.diginamic.formation.super_quizz">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -21,7 +24,16 @@
         </activity>
         <activity android:name=".ui.activities.QuestionActivity" />
         <activity android:name=".ui.activities.ResultatActivity" />
-        <activity android:name=".ui.activities.InformationActivity"/>
+        <activity android:name=".ui.activities.InformationActivity" />
+
+        <receiver android:name=".broadcast.NetworkChangeReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".ui.activities.ScoreActivity"></activity>
     </application>
 
 </manifest>

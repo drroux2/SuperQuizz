@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Super-Quizz</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -18,4 +17,7 @@
     <string name="default_text_test">default text test</string>
     <string name="text_question_name">Intitulé de la question</string>
     <string name="text_view_anwsers_question">Propositions</string>
+    <string name="correct_answer">Correct answer</string>
+    <string name="wrong_answer">Wrong answer</string>
+    <string name="no_answer">No answer yet</string>
 </resources>

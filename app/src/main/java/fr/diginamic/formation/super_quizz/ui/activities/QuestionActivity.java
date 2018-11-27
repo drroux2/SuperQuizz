@@ -1,9 +1,10 @@
 package fr.diginamic.formation.super_quizz.ui.activities;
+
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.SystemClock;
-import android.support.v7.app.AppCompatActivity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -58,8 +59,16 @@ public class QuestionActivity extends AppCompatActivity implements DelayTask.OnD
         Button buttonTap = (Button)view;
         String buttonText = buttonTap.getText().toString();
         QuestionDatabaseHelper databaseHelper = QuestionDatabaseHelper.getInstance(this);
-        question.setUserAnswer(buttonText);
-        databaseHelper.updateQuestion(question);
+        SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(this);
+        if(mSettings.getBoolean("keepAnswers",true)){
+            if(buttonText.equals(question.getGoodAnswer())){
+                question.setUserAnswer("1");
+            }else{
+                question.setUserAnswer("0");
+            }
+        }
+
+        databaseHelper.updateUserAnswer(question);
         Intent i = new Intent(this, ResultatActivity.class);
         if(buttonText.equals(question.getGoodAnswer())){
             i.putExtra("succes", "1");

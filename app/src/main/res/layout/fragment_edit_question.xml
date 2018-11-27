@@ -109,7 +109,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/default_text_test"
                 android:inputType="text"
-                android:imeOptions="actionNext"/>
+                android:imeOptions="actionNext"
+                />
         </LinearLayout>
     </LinearLayout>
     <RelativeLayout

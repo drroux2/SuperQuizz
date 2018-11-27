@@ -1,14 +1,20 @@
 package fr.diginamic.formation.super_quizz.ui.fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -17,15 +23,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.diginamic.formation.super_quizz.broadcast.NetworkChangeReceiver;
 import fr.diginamic.formation.super_quizz.R;
 import fr.diginamic.formation.super_quizz.api.APIClient;
 import fr.diginamic.formation.super_quizz.database.QuestionDatabaseHelper;
 import fr.diginamic.formation.super_quizz.model.Question;
-import fr.diginamic.formation.super_quizz.ui.activities.MainActivity;
+
 
 
 public class EditQuestionFragment extends Fragment {
-
 
     private RadioButton radioButtonAnswer1, radioButtonAnswer2, radioButtonAnswer3, radioButtonAnswer4;
     private EditText editAnswer1, editAnswer2, editAnswer3, editAnswer4, editNameQuestion;
@@ -38,9 +44,9 @@ public class EditQuestionFragment extends Fragment {
 
     private boolean isEditMode = false;
 
-    private Question editQuestion = null;
+    private Question editQuestion;
 
-    private int idEditQuestion;
+    private boolean isOnLine;
 
     public EditQuestionFragment() {
         // Required empty public constructor
@@ -62,6 +68,14 @@ public class EditQuestionFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        registerReceiver();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +90,9 @@ public class EditQuestionFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.fragment_edit_question, container, false);
+
+        TextView textViewTitle = v.findViewById(R.id.text_view_title_edit_question);
+        textViewTitle.setText("Création d'une question");
         radioButtonAnswer1 = v.findViewById(R.id.radio_button_answer_1);
         radioButtonAnswer1.setChecked(true);
         radioButtonAnswer2 = v.findViewById(R.id.radio_button_answer_2);
@@ -91,7 +108,7 @@ public class EditQuestionFragment extends Fragment {
 
 
         if(isEditMode){
-            idEditQuestion = editQuestion.getIdQuestion();
+            textViewTitle.setText("Modification d'une question");
             editNameQuestion.setText(editQuestion.getNameQuestion());
             editAnswer1.setText(editQuestion.getAnswers().get(0));
             editAnswer2.setText(editQuestion.getAnswers().get(1));
@@ -159,50 +176,48 @@ public class EditQuestionFragment extends Fragment {
                     listAnswers.add(editAnswer3.getText().toString());
                     listAnswers.add(editAnswer4.getText().toString());
 
-                    Question question = new Question(editNameQuestion.getText().toString(),listAnswers, goodAnswer);
+                    final Question newQuestion = new Question(editNameQuestion.getText().toString(),listAnswers, goodAnswer, null);
 
                     if(isEditMode){
                         editQuestion.setNameQuestion(editNameQuestion.getText().toString());
                         editQuestion.setAnswers(listAnswers);
                         editQuestion.setGoodAnswer(goodAnswer);
-                        mListener.updateQuestion(editQuestion);
-                    }else {
                         try {
-                            APIClient.getInstance().addQuestion("POST",question, new APIClient.APIResult<Question>() {
+                            APIClient.getInstance().updateQuestion(editQuestion, new APIClient.APIResult<Question>() {
                                 @Override
                                 public void onFailure(IOException e) {
                                     Log.d("fail",e.getMessage());
-                                    mListener.returnToList();
+                                    mListener.updateQuestion(editQuestion);
                                 }
 
                                 @Override
-                                public void OnSuccess(Question object) throws IOException {
+                                public void OnSuccess(Question object){
                                     Log.d("success","success");
-                                    APIClient.getInstance().getQuestions(new APIClient.APIResult<List<Question>>() {
-                                        @Override
-                                        public void onFailure(IOException e) {
-                                            // TODO : Nothing
-                                        }
-
-                                        @Override
-                                        public void OnSuccess(List<Question> questions) throws IOException {
-                                            QuestionDatabaseHelper helper = QuestionDatabaseHelper.getInstance(getContext());
-                                            helper.synchroniseDatabaseQuestions(questions);
-                                            mListener.returnToList();
-                                        }
-                                    });
 
                                 }
                             });
-                        } catch (IOException e) {
+                        } catch (JSONException e) {
                             e.printStackTrace();
-                            e.getMessage();
+                        }
+                    }else {
+                        try {
+                            APIClient.getInstance().addQuestion(newQuestion, new APIClient.APIResult<Question>() {
+                                @Override
+                                public void onFailure(IOException e) {
+                                    mListener.saveQuestion(newQuestion);
+
+                                }
+
+                                @Override
+                                public void OnSuccess(Question object) {
+                                }
+                            });
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
                 }
-
+                mListener.returnToList();
             }
         });
 
@@ -219,10 +234,69 @@ public class EditQuestionFragment extends Fragment {
         return str == null || str.isEmpty();
     }
 
+
+
+
+    /**
+     * This method is responsible to register receiver with NETWORK_CHANGE_ACTION.
+     * */
+    private void registerReceiver()
+    {
+        try
+        {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(NetworkChangeReceiver.NETWORK_CHANGE_ACTION);
+            getActivity().registerReceiver(internalNetworkChangeReceiver, intentFilter);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        try
+        {
+            // Make sure to unregister internal receiver in onDestroy().
+            //getActivity
+            getActivity().unregisterReceiver(internalNetworkChangeReceiver);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        super.onDestroy();
+    }
+
+
+    /**
+     * This is internal BroadcastReceiver which get status from external receiver(NetworkChangeReceiver)
+     * */
+    InternalNetworkChangeReceiver internalNetworkChangeReceiver = new InternalNetworkChangeReceiver();
+    class InternalNetworkChangeReceiver extends BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            isOnLine = intent.getBooleanExtra("isOnline", true);
+            if(isOnLine){
+                Toast.makeText(getContext(),"connecté" ,Toast.LENGTH_SHORT).show();
+                isOnLine = true;
+            }else{
+                Toast.makeText(getContext(),"non connecté" ,Toast.LENGTH_SHORT).show();
+                isOnLine = false;
+            }
+
+        }
+    }
+
+
     public interface OnEditQuestionListener {
         void saveQuestion(Question q);
         void returnToList();
         void updateQuestion(Question q);
     }
+
 
 }

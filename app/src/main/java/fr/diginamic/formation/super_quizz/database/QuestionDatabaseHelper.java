@@ -3,6 +3,7 @@ package fr.diginamic.formation.super_quizz.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -33,6 +34,7 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_QUESTION_ANSWER_4 = "answer4";
     private static final String KEY_QUESTION_GOOD_ANSWER = "good_answer";
     private static final String KEY_QUESTION_USER_ANSWER = "user_answer";
+    private static final String KEY_QUESTION_USER_IMAGE = "image_url";
 
 
 
@@ -70,7 +72,8 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
                 KEY_QUESTION_ANSWER_3 + " VARCHAR(100)," +
                 KEY_QUESTION_ANSWER_4 + " VARCHAR(100)," +
                 KEY_QUESTION_GOOD_ANSWER + " VARCHAR(100)," +
-                KEY_QUESTION_USER_ANSWER + " VARCHAR(100)" +
+                KEY_QUESTION_USER_ANSWER + " CHAR(1)," +
+                KEY_QUESTION_USER_IMAGE + " VARCHAR(250)" +
                 ")";
 
         db.execSQL(CREATE_QUESTION_TABLE);
@@ -87,7 +90,7 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
     public List<Question> getAllQuestions(){
         List<Question> questions = new ArrayList<>();
 
-        String QUESTION_SELECT_QUERY = String.format("SELECT id_question, question_name, answer1, answer2, answer3, answer4, good_answer FROM %s", TABLE_QUESTIONS);
+        String QUESTION_SELECT_QUERY = String.format("SELECT id_question, question_name, answer1, answer2, answer3, answer4, good_answer, image_url FROM %s", TABLE_QUESTIONS);
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(QUESTION_SELECT_QUERY, null);
@@ -102,6 +105,7 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
                     String answer3 = cursor.getString(cursor.getColumnIndex(KEY_QUESTION_ANSWER_3));
                     String answer4 = cursor.getString(cursor.getColumnIndex(KEY_QUESTION_ANSWER_4));
                     newQuestion.setGoodAnswer(cursor.getString((cursor.getColumnIndex(KEY_QUESTION_GOOD_ANSWER))));
+                    newQuestion.setImageURL(cursor.getString(cursor.getColumnIndex(KEY_QUESTION_USER_IMAGE)));
                     List<String> listAnswers = new ArrayList<>();
                     listAnswers.add(answer1);
                     listAnswers.add(answer2);
@@ -123,11 +127,8 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void addQuestion(Question question) {
-        // Create and/or open the database for writing
         SQLiteDatabase db = getWritableDatabase();
 
-        // It's a good idea to wrap our insert in a transaction. This helps with performance and ensures
-        // consistency of the database.
         db.beginTransaction();
         try {
             ContentValues values = new ContentValues();
@@ -138,7 +139,8 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_QUESTION_ANSWER_3, question.getAnswers().get(2));
             values.put(KEY_QUESTION_ANSWER_4, question.getAnswers().get(3));
             values.put(KEY_QUESTION_GOOD_ANSWER, question.getGoodAnswer());
-            // Notice how we haven't specified the primary key. SQLite auto increments the primary key column.
+            values.put(KEY_QUESTION_USER_IMAGE, question.getImageURL());
+
             db.insertOrThrow(TABLE_QUESTIONS, null, values);
             db.setTransactionSuccessful();
         } catch (Exception e) {
@@ -148,10 +150,10 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateQuestion(Question question) {
+    public int updateQuestion(Question question) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        /*ContentValues values = new ContentValues();
+        ContentValues values = new ContentValues();
         String answer1 = question.getAnswers().get(0);
 
         values.put(KEY_QUESTION_NAME, question.getNameQuestion());
@@ -160,56 +162,32 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_QUESTION_ANSWER_3, question.getAnswers().get(2));
         values.put(KEY_QUESTION_ANSWER_4, question.getAnswers().get(3));
         values.put(KEY_QUESTION_GOOD_ANSWER, question.getGoodAnswer());
-        values.put(KEY_QUESTION_USER_ANSWER, question.getUserAnswer());
-        String[] args = { String.valueOf(question.getIdQuestion()) };
-        return db.update(TABLE_QUESTIONS, values, KEY_QUESTION_ID + " = " + question.getIdQuestion(), null);*/
+        return db.update(TABLE_QUESTIONS, values, KEY_QUESTION_ID + " = " + question.getIdQuestion(), null);
 
-        db.execSQL("update " + TABLE_QUESTIONS +
-                " set " + KEY_QUESTION_NAME + " = '" + question.getNameQuestion() + "', " +
-                KEY_QUESTION_ANSWER_1 + " = '" + question.getAnswers().get(0) + "', " +
-                KEY_QUESTION_ANSWER_2 + " = '" + question.getAnswers().get(1) + "', " +
-                KEY_QUESTION_ANSWER_3 + " = '" + question.getAnswers().get(2) + "', " +
-                KEY_QUESTION_ANSWER_4 + " = '" + question.getAnswers().get(3) + "', " +
-                KEY_QUESTION_GOOD_ANSWER + " = '" + question.getGoodAnswer() + "', " +
-                KEY_QUESTION_USER_ANSWER + " = NULL " +
-                "WHERE " + KEY_QUESTION_ID + " = " + question.getIdQuestion());
     }
 
-
-    public void deleteAllQuestions() {
-        SQLiteDatabase db = getWritableDatabase();
-        db.beginTransaction();
-        try {
-            // Order of deletions is important when foreign key relationships exist.
-            db.delete(TABLE_QUESTIONS, null, null);
-            db.setTransactionSuccessful();
-        } catch (Exception e) {
-            Log.d(TAG, "Error while trying to delete all posts and users");
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    public boolean findQuestionById(Question question){
-        boolean isOK;
-        Question DBQuestion = new Question();
+    public int updateUserAnswer(Question question){
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT " + KEY_QUESTION_ID + " FROM " + TABLE_QUESTIONS + " WHERE " + KEY_QUESTION_ID + " = " + question.getIdQuestion();
-        Cursor cursor = db.rawQuery(query,null);
-        if (cursor.moveToFirst()){
-            do{
-                DBQuestion.setIdQuestion(cursor.getInt(cursor.getColumnIndex(KEY_QUESTION_ID)));
-            }
-            while(cursor.moveToNext());
-        }cursor.close();
-        if(DBQuestion.getIdQuestion() == question.getIdQuestion()){
-            isOK = true;
-        }else{
-            isOK = false;
-        }
 
-        return isOK;
+        ContentValues values = new ContentValues();
+        values.put(KEY_QUESTION_USER_ANSWER, question.getUserAnswer());
+        return db.update(TABLE_QUESTIONS, values, KEY_QUESTION_ID + " = " + question.getIdQuestion(), null);
     }
+
+    public int updateAllAnswers(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_QUESTION_USER_ANSWER, "null");
+        return db.update(TABLE_QUESTIONS, values, null, null);
+    }
+
+
+    public void deleteQuestion(Question question){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_QUESTIONS, KEY_QUESTION_ID + "=" + question.getIdQuestion(), null);
+    }
+
 
     public void synchroniseDatabaseQuestions(List<Question> serverQuestions) {
 
@@ -227,7 +205,7 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
             }
 
             if (found) {
-                //updateQuestion(serverQuestion);
+                updateQuestion(serverQuestion);
             } else {
                 addQuestion(serverQuestion);
             }
@@ -244,9 +222,28 @@ public class QuestionDatabaseHelper extends SQLiteOpenHelper {
             }
 
             if (!found) {
-                //TODO : delete question
+                deleteQuestion(dataBaseQuestion);
             }
         }
+    }
+
+
+    /**
+     * value = 1 correct_answer
+     * value = 0 wrong_answer
+     * value = null no answer
+     * @param value
+     * @return
+     */
+    public int countNbAnswer(String value){
+        SQLiteDatabase db = this.getReadableDatabase();
+        int count = 0;
+        if(value != null) {
+            count = (int) DatabaseUtils.queryNumEntries(db, TABLE_QUESTIONS, KEY_QUESTION_USER_ANSWER + "=" + value);
+        }else{
+            count = (int) DatabaseUtils.queryNumEntries(db, TABLE_QUESTIONS, KEY_QUESTION_USER_ANSWER + " IS NULL");
+        }
+        return count;
     }
 
 }

@@ -3,11 +3,7 @@ package fr.diginamic.formation.super_quizz.ui.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,19 +12,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.RadioButton;
-
-import java.io.IOException;
-import java.util.List;
 
 import fr.diginamic.formation.super_quizz.R;
-import fr.diginamic.formation.super_quizz.api.APIClient;
 import fr.diginamic.formation.super_quizz.database.QuestionDatabaseHelper;
 import fr.diginamic.formation.super_quizz.model.Question;
 import fr.diginamic.formation.super_quizz.ui.fragments.EditQuestionFragment;
-import fr.diginamic.formation.super_quizz.ui.fragments.PlayFragment;
 import fr.diginamic.formation.super_quizz.ui.fragments.QuestionListFragment;
-import fr.diginamic.formation.super_quizz.ui.fragments.ScoreFragment;
 import fr.diginamic.formation.super_quizz.ui.fragments.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity
@@ -52,31 +41,13 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         if(savedInstanceState == null) {
             initListQuestion();
         }
 
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        APIClient.getInstance().getQuestions(new APIClient.APIResult<List<Question>>() {
-            @Override
-            public void onFailure(IOException e) {
-                // TODO : Nothing
-            }
-
-            @Override
-            public void OnSuccess(List<Question> questions) throws IOException {
-                QuestionDatabaseHelper helper = QuestionDatabaseHelper.getInstance(MainActivity.this);
-                helper.synchroniseDatabaseQuestions(questions);
-                initListQuestion();
-            }
-        });
-    }
 
     @Override
     public void onBackPressed() {
@@ -116,16 +87,16 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_score) {
-            initScoreFragment();
+            initScoreActivity();
         } else if (id == R.id.nav_informations) {
             Intent intent = new Intent(this, InformationActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_play) {
-            initPlayFragment();
         } else if (id == R.id.nav_settings) {
             initSettingsFragment();
         } else if (id == R.id.nav_edit_question) {
             initEditQuestionFragment(null);
+        } else if (id == R.id.nav_list_question) {
+            initListQuestion();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -159,22 +130,15 @@ public class MainActivity extends AppCompatActivity
         transaction.commit();
     }
 
-    private void initPlayFragment(){
-        PlayFragment playFragment = new PlayFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container_main, playFragment);
-        transaction.commit();
-    }
 
-    private void initScoreFragment(){
-        ScoreFragment scoreFragment = new ScoreFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container_main, scoreFragment);
-        transaction.commit();
+    private void initScoreActivity(){
+        Intent intent = new Intent(this, ScoreActivity.class);
+        startActivity(intent);
+
     }
 
     private void initEditQuestionFragment(Question q){
-        EditQuestionFragment editQuestionFragment = null;
+        EditQuestionFragment editQuestionFragment;
         if(q == null) {
             editQuestionFragment = EditQuestionFragment.newCreateQuestionInstance();
         }else{

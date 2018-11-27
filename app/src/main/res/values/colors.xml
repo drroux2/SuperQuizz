@@ -7,4 +7,5 @@
     <color name="colorRedFail">#ff0000</color>
     <color name="colorBlack">#000</color>
     <color name="colorWhite">#fff</color>
+    <color name="colorNoAnswer">#ffea00</color>
 </resources>
